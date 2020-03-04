@@ -11,10 +11,8 @@ From: ubuntu:16.04
 	apt-get -y install nano
 	apt-get -y update
 	apt-get -y upgrade
-	cd /home
 	git clone https://github.com/edocorallounibo/DeepLog_no_tensorboard.git
-	cd DeepLog_no_tensorboard/
-	sudo -H pip3 install -r requirements.txt
+	sudo -H pip3 install -r DeepLog_no_tensorboard/requirements.txt
 	
 %labels
 	Author edocorallounibo
