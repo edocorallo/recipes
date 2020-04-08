@@ -3,10 +3,6 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 %setup
       	mkdir ${SINGULARITY_ROOTFS}/cont
-	mkdir ${SINGULARITY_ROOTFS}/cont/storm-t3
-
-%files
-	/home/edoardo/storm-t3/storm-frontend ${SINGULARITY_ROOTFS}/cont/storm-t3/storm-frontend
 
 %post
      	cd ${SINGULARITY_ROOTFS}/cont
@@ -27,6 +23,10 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	git clone https://github.com/edocorallounibo/parser.git
 	pip3 install pandas
 	pip3 install scipy
+	mkdir storm-t3
+	cd storm-t3
+	cp /home/edoardo/storm-t3/storm-frontend storm-frontend
+
 
 %runscript #WIP
 	echo "Arguments received: $*"
