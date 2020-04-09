@@ -25,9 +25,9 @@ From: ubuntu:18.04
 
 %runscript #WIP
 	echo "Arguments received: $*"
-	cd /home/ATLAS-T3/edocorallo/logparser/parser
+	cd /container/DeepLog_no_tensorboard
 	python3 parser.py $1 $2
-	cd /home/ATLAS-T3/edocorallo/DeepLog_no_tensorboard
+	cd /container/DeepLog_no_tensorboard
 	python3 LogKeyModel_train.py $2
 	
 %help
