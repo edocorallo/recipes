@@ -4,6 +4,8 @@ From: ubuntu:18.04
 %files	
 	/home/ATLAS-T3/edocorallo/storm-t3/storm-frontend
 %post
+	mkdir /container
+	cd /container
         apt-get -y update
         apt-get -y upgrade
         apt-get -y install software-properties-common
