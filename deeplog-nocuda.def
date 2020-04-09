@@ -1,0 +1,56 @@
+BootStrap: docker
+From: ubuntu:18.04
+
+%setup
+      	mkdir ${SINGULARITY_ROOTFS}/home/ATLAS-T3/edocorallo/cont
+	
+%files	
+	      /home/ATLAS-T3/edocorallo/storm-t3/storm-frontend
+
+%post
+     	  cd ${SINGULARITY_ROOTFS}/home/ATLAS-T3/edocorallo/cont
+        apt-get -y update
+        apt-get -y upgrade
+        apt-get -y install software-properties-common
+        add-apt-repository ppa:deadsnakes/ppa
+        apt-get -y update
+        apt-get -y install python3.6
+        apt-get -y install python3-pip
+        apt-get -y install git
+        apt-get -y update
+        apt-get -y upgrade
+        git clone https://github.com/edocorallounibo/DeepLog_no_tensorboard.git
+        pip3 install -r DeepLog_no_tensorboard/requirements.txt
+	      git clone https://github.com/logpai/logparser.git
+	      cd logparser
+	      git clone https://github.com/edocorallounibo/parser.git
+       	pip3 install pandas
+	      pip3 install scipy
+		
+
+%runscript #WIP
+	      echo "Arguments received: $*"
+	      cd /cont/logparser/parser
+	      python3 parser.py $1 $2
+	      cd /cont/DeepLog_no_tensorboard
+	      python3 LogKeyModel_train.py $2
+	
+
+%help
+	A container for unprivileged users, build it with the --fakeroot (or -f) option.
+	Runs Spell algorithm to parse a log_file into sequences, then runs the LogKey model from DeepLog.
+	For references see: LogPai (https://github.com/logpai/logparser)
+			                DeepLog(https://github.com/wuyifan18/DeepLog)
+	One day the parameter model will be implemented, this will increase the overall accuracy
+
+	Usage:
+		1st argument:
+				-f ,--frontend to parse a frontend file
+				-b,--backend   to parse a backend file (incomplete)
+		2nd argument:
+				log_file the name of the file you want to parse.
+				(only storm-linux supported for now, this is still a Work In Progress)#TODO
+
+%labels
+       	Author edocorallounibo
+	Version 0.0.1
