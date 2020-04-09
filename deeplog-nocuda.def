@@ -36,7 +36,7 @@ From: ubuntu:18.04
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
 	Runs Spell algorithm to parse a log_file into sequences, then runs the LogKey model from DeepLog.
 	For references see: LogPai (https://github.com/logpai/logparser)
-			                DeepLog(https://github.com/wuyifan18/DeepLog)
+			    DeepLog(https://github.com/wuyifan18/DeepLog)
 	One day the parameter model will be implemented, this will increase the overall accuracy
 
 	Usage:
