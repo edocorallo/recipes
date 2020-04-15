@@ -1,11 +1,11 @@
 BootStrap: docker
 From: ubuntu:18.04
 
-%files	
-	/home/ATLAS-T3/edocorallo/storm-t3/storm-frontend
+
 %post
-	mkdir /container
-	cd /container
+     	mkdir /container
+        cd /container
+        mkdir logfiles
         apt-get -y update
         apt-get -y upgrade
         apt-get -y install software-properties-common
@@ -14,16 +14,17 @@ From: ubuntu:18.04
         apt-get -y install python3.6
         apt-get -y install python3-pip
         apt-get -y install git
-	apt-get -y update
+        apt-get -y update
         apt-get -y upgrade
         git clone https://github.com/edocorallounibo/DeepLog_no_tensorboard.git
         pip3 install -r DeepLog_no_tensorboard/requirements.txt
-	git clone https://github.com/logpai/logparser.git
-	cd logparser
-	git clone https://github.com/edocorallounibo/parser.git
-       	pip3 install pandas
-	pip3 install scipy
-		
+        mkdir DeepLog_no_tensorboard/model
+        git clone https://github.com/logpai/logparser.git
+        cd logparser
+        git clone https://github.com/edocorallounibo/parser.git
+        pip3 install pandas
+        pip3 install scipy
+
 
 %runscript #WIP
 	echo "Arguments received: $*"
