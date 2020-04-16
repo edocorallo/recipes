@@ -35,10 +35,14 @@ From: ubuntu:18.04
 	
 %help
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
+	In order to be functional the "/container/logfile/" and "/container/DeepLog_no_tensorboard/data/" should be bound
+	via the --bind (or -B) option to your host system.
+	
 	Runs Spell algorithm to parse a log_file into sequences, then runs the LogKey model from DeepLog.
 	For references see: LogPai (https://github.com/logpai/logparser)
 			    DeepLog(https://github.com/wuyifan18/DeepLog)
-	One day the parameter model will be implemented, this will increase the overall accuracy
+			    
+	One day the parameter model will be implemented, this will increase the overall accuracy.
 
 	Usage:
 		1st argument:
