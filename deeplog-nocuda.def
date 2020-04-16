@@ -1,7 +1,8 @@
 BootStrap: docker
 From: ubuntu:18.04
 
-
+%files
+	/home/ATLAS-T3/edocorallo/storm-t3
 %post
      	mkdir /container
         cd /container
