@@ -19,19 +19,15 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
         git clone https://github.com/edocorallounibo/DeepLog_no_tensorboard.git
         pip3 install -r DeepLog_no_tensorboard/requirements.txt
         mkdir DeepLog_no_tensorboard/model
-        git clone https://github.com/logpai/logparser.git
-        cd logparser
+        git clone https://github.com/IBM/Drain3.git
+	pip3 install -r Drain3/requirements.txt
+        cd Drain3
         git clone https://github.com/edocorallounibo/parser.git
         pip3 install pandas
         pip3 install scipy
 
 %runscript #WIP
-	echo "Arguments received: $*"
-	cd /container/logparser/parser
-	python3 parser.py $1 $2
-	cd /container/DeepLog_no_tensorboard
-	python3 LogKeyModel_train.py $2
-	
+		
 
 %help
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
@@ -50,4 +46,4 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 %labels
        	Author edocorallounibo
-	Version 0.0.1
+	Version 0.0.2
