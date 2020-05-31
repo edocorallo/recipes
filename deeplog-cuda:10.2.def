@@ -29,23 +29,23 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 %runscript #WIP
 	#!/bin/bash
-	if $1=="parse"||"p";then
-	#Parsing part
-		if $2=="-f";then
-			for file in /container/logfiles/storm-frontend/*
+	if [[ $1 == parse ]]; then
+	#Parsing part 
+		if [[ $2 == -f ]]; then
+			for file in logfiles/frontend-server/*
 				do #clustering
-					if ![ -f "/container/drain3/parser/results/$file_struct.csv"];then
-						f=${file//'/container/logfile/storm-frontend/'}
-						python3 /container/drain3/parser/drain3_parser.py -f $f
+					f=${file//"logfiles/frontend-server/"}
+					if ! test -f "results/frontend-server/"$f"_struct.csv" ;then
+						python3 drain3_parser.py -f $f
 					else
 						echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
 					fi
 				done
-			for file in /container/Drain3/parser/results/frontend-server/*_struct.csv
+			for file in results/frontend-server/*_struct.csv
 				do #extract sequences
-					if [![ -f "/container/drain3/parser/results/frontend-server/$file_normal"] && ![ -f "/container/drain3/parser/results/frontend-server/$file_abnormal"]];then
-						f=${file//'_struct.csv'}
-						f=${f//'results/storm-frontend/'}
+					f=${file//'_struct.csv'}
+					f=${f//'results/frontend-server/'}
+					if ! test -f "results/frontend-server/"$f"_normal" ;then
 						python drain_sequences.py -f $f
 					else
 						echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
@@ -53,39 +53,40 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 				done
 				
 			#Train and Validation sets creation(figure this out ffs)
-		elif $2=="-b";then
-			for file in /container/logfiles/storm-backend/*
+		elif [[ $2 == -b ]]; then
+			for file in logfiles/backend-server/*
 				do #clustering
-					if ![ -f "/container/drain3/parser/results/$file_struct.csv"];then
-						f=${file//'/container/logfile/storm-backend/'}
-						python3 /container/drain3/parser/drain3_parser.py -f $f
+					f=${file//'logfiles/backend-server/'}
+					if ! test -f "results/"$f"_struct.csv";then
+						python3 drain3_parser.py -f $f
 					
 					else 
 						echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
 					fi
 				done
-			for file in /container/drain3/parser/results/backend-server/*_struct.csv
-				do #extract sequences
-					if [![ -f "/container/drain3/parser/results/frontend-server/$file_normal"] && ![ -f "/container/drain3/parser/results/frontend-server/$file_abnormal"]];then
-						f=${file//'_struct.csv'}
-						f=${f//'results/backend-server/'}
+			for file in results/backend-server/*_struct.csv
+				 do #extract sequences
+					f=${file//'_struct.csv'}
+					f=${f//'results/backend-server/'}
+					if ! test -f "results/frontend-server/"$f"_normal";then
 						python drain_sequences.py -f $f
 					
 					else
 						echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
 					fi
 				done
-		else:
+		else
 			echo "Specify -f or -b for log format"
 		fi #if $2=="-f"
-	elif $2=="train";then
-	#DeepLog training stage
-	elif $2=="predict";then
+	elif [[ $1 == train ]]; then
+		echo "Training stage..."
+			#DeepLog training stage
+	elif [[ $1 == predict ]]; then
+		echo "Predicting..."				
 	#Deeplog prediction
 	else
 	echo "Specify the task: parse, train, predict are the available options"
 	fi	#if $1=="parse"
-
 %help
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
 	Runs Spell algorithm to parse a log_file into sequences, then runs the LogKey model from DeepLog.
@@ -104,4 +105,4 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 %labels
        	Author edocorallounibo
-	Version 0.0.2
+	Version 0.0.3
