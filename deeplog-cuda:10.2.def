@@ -19,20 +19,53 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
         git clone https://github.com/edocorallounibo/DeepLog_no_tensorboard.git
         pip3 install -r DeepLog_no_tensorboard/requirements.txt
         mkdir DeepLog_no_tensorboard/model
-        git clone https://github.com/IBM/Drain3.git
-	pip3 install -r Drain3/requirements.txt
-        cd Drain3
+        git clone https://github.com/edocorallounibo/drain3.git
+	python3 drain3/setup.py
+	pip3 install -r drain3/requirements.txt
+        cd drain3
         git clone https://github.com/edocorallounibo/parser.git
         pip3 install pandas
         pip3 install scipy
 
 %runscript #WIP
-		
+	#!/bin/bash
+	if $1=="parse"||"p";then
+	#Parsing part
+	if $2=="-f";then
+	for file in /container/logfiles/storm-frontend/*
+	do #clustering
+	f=${file//'/container/logfile/storm-frontend/'}
+	python3 /container/drain3/parser/drain3_parser.py -f $f
+	done
+	for file in /container/Drain3/parser/results/frontend/*_struct.csv
+	do #extract sequences
+	f=${file//'_struct.csv'}
+	f=${f//'results/storm-frontend/'}
+	python drain_sequences.py -f $f
+	done
+	#Train and Validation sets creation(figure this out ffs)
+	else
+	for file in /container/logfiles/storm-frontend/*
+	do #clustering
+	f=${file//'/container/logfile/storm-backend/'}
+	python3 /container/drain3/parser/drain3_parser.py -f $f
+	done
+	for file in /container/drain3/parser/results/frontend/*_struct.csv
+	do #extract sequences
+	f=${file//'_struct.csv'}
+	f=${f//'results/storm-backend/'}
+	python drain_sequences.py -f $f
+	done
+	fi
+	else
+	#DeepLog part
+	fi	
 
 %help
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
 	Runs Spell algorithm to parse a log_file into sequences, then runs the LogKey model from DeepLog.
 	For references see: LogPai (https://github.com/logpai/logparser)
+			    IBM    (https://github.com/IBM/Drain3)
 			    DeepLog(https://github.com/wuyifan18/DeepLog)
 	One day the parameter model will be implemented, this will increase the overall accuracy
 
