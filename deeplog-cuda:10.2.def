@@ -31,7 +31,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	#!/bin/bash
 	if [[ $1 == parse ]]; then
 	#Parsing part 
-		if [[ $2 == -f ]]; then
+		if [[ $2 == frontend ]]; then
 			for file in logfiles/frontend-server/*
 				do #clustering
 					f=${file//"logfiles/frontend-server/"}
@@ -53,30 +53,32 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 				done
 				
 			#Train and Validation sets creation(figure this out ffs)
-		elif [[ $2 == -b ]]; then
+		elif [[ $2 == backend ]]; then
 			for file in logfiles/backend-server/*
 				do #clustering
 					f=${file//'logfiles/backend-server/'}
-					if ! test -f "results/"$f"_struct.csv";then
-						python3 drain3_parser.py -f $f
+					if ! test -f "results/backend-server/"$f"_struct.csv";then
+						echo "backend-parser"
+						python3 drain3_parser.py -b $f
 					
 					else 
 						echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
 					fi
 				done
 			for file in results/backend-server/*_struct.csv
-				 do #extract sequences
+				do #extract sequences
 					f=${file//'_struct.csv'}
 					f=${f//'results/backend-server/'}
-					if ! test -f "results/frontend-server/"$f"_normal";then
-						python drain_sequences.py -f $f
+					if ! test -f "results/backend-server/"$f"_normal";then
+						echo "backend-sequences"
+						python drain_sequences.py -b $f
 					
 					else
 						echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
 					fi
 				done
 		else
-			echo "Specify -f or -b for log format"
+			echo "Specify frontend or backend for log format"
 		fi #if $2=="-f"
 	elif [[ $1 == train ]]; then
 		echo "Training stage..."
