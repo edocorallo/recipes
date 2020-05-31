@@ -33,48 +33,57 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	#Parsing part
 		if $2=="-f";then
 			for file in /container/logfiles/storm-frontend/*
-				if ![ -f "/container/drain3/parser/results/$file_struct.csv"];then
-					do #clustering
+				do #clustering
+					if ![ -f "/container/drain3/parser/results/$file_struct.csv"];then
 						f=${file//'/container/logfile/storm-frontend/'}
 						python3 /container/drain3/parser/drain3_parser.py -f $f
-					done
-				else
-					echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
-				fi
+					else
+						echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
+					fi
+				done
 			for file in /container/Drain3/parser/results/frontend-server/*_struct.csv
-				if [![ -f "/container/drain3/parser/results/frontend-server/$file_normal"] && ![ -f "/container/drain3/parser/results/frontend-server/$file_abnormal"]];then
-					do #extract sequences
+				do #extract sequences
+					if [![ -f "/container/drain3/parser/results/frontend-server/$file_normal"] && ![ -f "/container/drain3/parser/results/frontend-server/$file_abnormal"]];then
 						f=${file//'_struct.csv'}
 						f=${f//'results/storm-frontend/'}
 						python drain_sequences.py -f $f
-					done
-				else
-					echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
-				fi
-	#Train and Validation sets creation(figure this out ffs)
-		else #if $2=="-f"
+					else
+						echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
+					fi	
+				done
+				
+			#Train and Validation sets creation(figure this out ffs)
+		elif $2=="-b";then
 			for file in /container/logfiles/storm-backend/*
-				if ![ -f "/container/drain3/parser/results/$file_struct.csv"];then
-					do #clustering
+				do #clustering
+					if ![ -f "/container/drain3/parser/results/$file_struct.csv"];then
 						f=${file//'/container/logfile/storm-backend/'}
 						python3 /container/drain3/parser/drain3_parser.py -f $f
-					done
-				else 
-					echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
-				fi
+					
+					else 
+						echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
+					fi
+				done
 			for file in /container/drain3/parser/results/backend-server/*_struct.csv
-				if [![ -f "/container/drain3/parser/results/frontend-server/$file_normal"] && ![ -f "/container/drain3/parser/results/frontend-server/$file_abnormal"]];then
-					do #extract sequences
+				do #extract sequences
+					if [![ -f "/container/drain3/parser/results/frontend-server/$file_normal"] && ![ -f "/container/drain3/parser/results/frontend-server/$file_abnormal"]];then
 						f=${file//'_struct.csv'}
 						f=${f//'results/backend-server/'}
 						python drain_sequences.py -f $f
-					done
-				else
-					echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
-				fi
+					
+					else
+						echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
+					fi
+				done
+		else:
+			echo "Specify -f or -b for log format"
 		fi #if $2=="-f"
-	else #if $1=="parse"
-	#DeepLog part
+	elif $2=="train";then
+	#DeepLog training stage
+	elif $2=="predict";then
+	#Deeplog prediction
+	else
+	echo "Specify the task: parse, train, predict are the available options"
 	fi	#if $1=="parse"
 
 %help
