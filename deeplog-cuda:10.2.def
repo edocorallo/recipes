@@ -140,6 +140,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
 	Runs Spell algorithm to parse a log_file into sequences, then runs the LogKey model from DeepLog.
 	For references see: LogPai (https://github.com/logpai/logparser)
+			    IBM    (https://github.com/IBM/Drain3)
 			    DeepLog(https://github.com/wuyifan18/DeepLog)
 	One day the parameter model will be implemented, this will increase the overall accuracy
 
@@ -148,8 +149,12 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 				parse | train | predict 
 		2nd argument:
 				frontend | backend
-		3rd argument:(optional)
-
+		3rd argument:
+				(optional) file_name
+	Examples:
+		$ singularity build --fakeroot deeplog.sif deeplog-cude:10.2.def 
+		
+		$ singularity run --fakeroot --bind Your/Logfiles/Directory/:/container/logfiles/,Your/Result/Directory/:/container/drain3/parser/results/ deeplog.sif parse frontend
 %labels
        	Author edocorallounibo
 	Version 0.0.4
