@@ -98,7 +98,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	  elif [[ $2 == backend ]]; then
 	   for file in /container/logfiles/backend-server/*
 	   do #clustering
-	    f=${file//'/containerlogfiles/backend-server/'}
+	    f=${file//'/container/logfiles/backend-server/'}
 	    if ! test -e "results/backend-server/"$f"_struct.csv";then
 	     echo "Processing $file ..."
 	     python3 log_to_dataframe.py -b $f
