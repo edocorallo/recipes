@@ -1,8 +1,6 @@
 BootStrap: docker
 From: ubuntu:18.04
 
-%files
-	/home/ATLAS-T3/edocorallo/storm-t3
 %post
      	mkdir /container
         cd /container
@@ -20,20 +18,124 @@ From: ubuntu:18.04
         git clone https://github.com/edocorallounibo/DeepLog_no_tensorboard.git
         pip3 install -r DeepLog_no_tensorboard/requirements.txt
         mkdir DeepLog_no_tensorboard/model
-        git clone https://github.com/logpai/logparser.git
-        cd logparser
+        git clone https://github.com/edocorallounibo/drain3.git
+	pip3 install -r drain3/requirements.txt
+        cd drain3
+	python3 setup.py install
         git clone https://github.com/edocorallounibo/parser.git
+	mkdir parser/results
+	mkdir parser/results/frontend-server
+	mkdir parser/results/backend-server
         pip3 install pandas
         pip3 install scipy
 
 
 %runscript #WIP
-	echo "Arguments received: $*"
-	cd /container/DeepLog_no_tensorboard
-	python3 parser.py $1 $2
-	cd /container/DeepLog_no_tensorboard
-	python3 LogKeyModel_train.py $2
-	
+#!/bin/bash
+	if ! [ -v $3 ] 
+	then
+	 if [ $1 == parse ]
+	 then
+	 cd /container/drain3/parser
+	 #Parsing part
+	  if [[ $2 == frontend ]]
+	  then
+	   if ! test -e "results/frontend-server/"$3"_struct.csv"; then
+	    python3 log_to_dataframe.py -f $3
+	    python3 drain3_parser.py -f $3
+	   else
+	    echo "$3 seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	   fi
+	   if ! test -e "results/frontend-server/"$3"_normal"; then
+	    python drain_sequences.py -f $3
+	   else
+	    echo "$3 seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	   fi
+ 	  elif [[ $2 == backend ]]; then
+	   if ! test -e "results/backend-server/"$3"_struct.csv"; then
+	    python3 log_to_dataframe.py -b $3
+	    python3 drain3_parser.py -b $3
+	   else
+	    echo "$f seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	   fi
+	   if ! test -e "results/backend-server/"$3"_normal"; then
+	    python3 drain_sequences.py -b $3
+	   else
+	    echo "$3 seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	   fi
+	  else 
+	   echo "when parsing is necessary to specify frontend or backend"
+	  fi
+	 fi
+	else #if [ -v $3 ]
+	 if [[ $1 == parse ]]; 
+	 then
+	 cd /container/drain3/parser
+	 #Parsing part 
+	  if [[ $2 == frontend ]]; then
+	   for file in /container/logfiles/frontend-server/*
+	   do #clustering
+	    f=${file//"/container/logfiles/frontend-server/"}
+	    if ! test -e "results/frontend-server/"$f"_struct.csv" ;then
+	     echo "Processing $file ..."
+	     python3 log_to_dataframe.py -f $f
+	     python3 drain3_parser.py -f $f
+	    else
+	     echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	    fi
+	   done
+	   for file in results/frontend-server/*_struct.csv
+	   do #extract sequences
+	    f=${file//'_struct.csv'}
+	    f=${f//'results/frontend-server/'}
+	    if ! test -e "results/frontend-server/"$f"_normal" ;then
+	     python3 drain_sequences.py -f $f
+	    else
+	     echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
+	    fi	
+	   done	
+	#Train and Validation sets creation(figure this out ffs)
+	  elif [[ $2 == backend ]]; then
+	   for file in /container/logfiles/backend-server/*
+	   do #clustering
+	    f=${file//'/container/logfiles/backend-server/'}
+	    if ! test -e "results/backend-server/"$f"_struct.csv";then
+	     echo "Processing $file ..."
+	     python3 log_to_dataframe.py -b $f
+	     python3 drain3_parser.py -b $f
+	    else 
+	     echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	    fi
+	   done
+	   for file in results/backend-server/*_struct.csv
+	   do #extract sequences
+	    f=${file//'_struct.csv'}
+	    f=${f//'results/backend-server/'}
+	    if ! test -e "results/backend-server/"$f"_normal";then
+	     python3 drain_sequences.py -b $f
+	    else
+	     echo "$file seems to be already processed, if it's a new file to be converted in sequences, please name it differently"
+	    fi
+	   done
+	  else
+	   echo "Specify frontend or backend for log format"
+	  fi #if $2=="-f"
+	 elif [[ $1 == train ]];
+	 then
+	  cd /container/DeepLog_no_tensorboard/
+	  echo "Training stage..."
+	#DeepLog training stage
+	  python3 LogKeyModel_train.py -log_file $2
+	 elif [[ $1 == predict ]]; 
+	 then
+	  cd /container/DeepLog_no_tensorboard/
+	  echo "Predicting..."				
+	#Deeplog prediction
+	  python3 LogKeyModel_predict.py -log_file $2
+	 else
+	  echo "Specify the task: parse, train, predict are the available options"
+	 fi
+	fi
 %help
 	A container for unprivileged users, build it with the --fakeroot (or -f) option.
 	In order to be functional the "/container/logfile/" and "/container/DeepLog_no_tensorboard/data/" should be bound
@@ -47,12 +149,12 @@ From: ubuntu:18.04
 
 	Usage:
 		1st argument:
-				-f ,--frontend to parse a frontend file
-				-b,--backend   to parse a backend file (incomplete)
+				parse | train | predict 
 		2nd argument:
-				log_file the name of the file you want to parse.
-				(only storm-linux supported for now, this is still a Work In Progress)#TODO
+				frontend | backend
+		3rd argument:
+				(optional) file_name
 
 %labels
        	Author edocorallounibo
-	Version 0.0.1
+	Version 0.1.0-a
