@@ -3,6 +3,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 
 %post
+	pwd
      	mkdir /home/edoardo/recipes/container
         cd /home/edoardo/recipes/container
         mkdir logfiles
