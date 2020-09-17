@@ -3,8 +3,8 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 
 %post
-     	mkdir ~/recipes/container
-        cd container
+     	mkdir /home/edoardo/recipes/container
+        cd /home/edoardo/recipes/container
         mkdir logfiles
         apt-get -y update
         apt-get -y upgrade
