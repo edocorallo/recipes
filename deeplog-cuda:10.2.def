@@ -3,8 +3,8 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 
 %post
-     	mkdir /home/container
-        cd /home/container
+     	mkdir /container
+        cd /container
         mkdir logfiles
         apt-get -y update
         apt-get -y upgrade
@@ -32,7 +32,6 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 %runscript #WIP
 #!/bin/bash
-	cd /home/edoardo/recipes/
 	if ! [ -v $3 ] 
 	then
 	 if [ $1 == parse ]
@@ -74,9 +73,9 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	 cd container/drain3/parser
 	 #Parsing part 
 	  if [[ $2 == frontend ]]; then
-	   for file in container/logfiles/frontend-server/*
+	   for file in /container/logfiles/frontend-server/*
 	   do #clustering
-	    f=${file//"container/logfiles/frontend-server/"}
+	    f=${file//"/container/logfiles/frontend-server/"}
 	    if ! test -e "results/frontend-server/"$f"_struct.csv" ;then
 	     echo "Processing $file ..."
 	     python3 log_to_dataframe.py -f $f
@@ -97,9 +96,9 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	   done	
 	#Train and Validation sets creation(figure this out ffs)
 	  elif [[ $2 == backend ]]; then
-	   for file in container/logfiles/backend-server/*
+	   for file in /container/logfiles/backend-server/*
 	   do #clustering
-	    f=${file//'container/logfiles/backend-server/'}
+	    f=${file//'/container/logfiles/backend-server/'}
 	    if ! test -e "results/backend-server/"$f"_struct.csv";then
 	     echo "Processing $file ..."
 	     python3 log_to_dataframe.py -b $f
