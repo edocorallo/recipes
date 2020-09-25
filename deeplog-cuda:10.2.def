@@ -40,11 +40,11 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	 #Parsing part
 	  if [[ $2 == frontend ]]
 	  then          
-	   if ! test -e "results/frontend-server/"$3"_struct.csv"; then
-	    file="/container/logfiles/frontend-server/"
-	    file="${file}$3"
-	    if [[ $file =~ \.gz$ ]];then gunzip $file; f=${$file//'.gz'};fi
-	     f=${$f//'/container/logfiles/frontend-server/'}
+	  file="/container/logfiles/frontend-server/"
+	  file="${file}$3"
+	  if [[ $file =~ \.gz$ ]];then gunzip $file; f=${file//'.gz'};fi
+	  f=${file//'/container/drain3/parser/'}
+	   if ! test -e "results/frontend-server/"$f"_struct.csv"; then
 	     python3 log_to_dataframe.py -f $f
 	     python3 drain3_parser.py -f $f
 	     gzip $file
