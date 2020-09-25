@@ -32,24 +32,32 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 
 %runscript #WIP
 #!/bin/bash
-	if ! [ -v $3 ] 
+	if ! [ -v $3 ]
 	then
 	 if [ $1 == parse ]
 	 then
 	 cd /container/drain3/parser
 	 #Parsing part
 	  if [[ $2 == frontend ]]
-	  then
+	  then          
 	   if ! test -e "results/frontend-server/"$3"_struct.csv"; then
-	    python3 log_to_dataframe.py -f $3
-	    python3 drain3_parser.py -f $3
+	    file="/container/logfiles/frontend-server/"
+	    file="${file}$3"
+	    if [[ $file =~ \.gz$ ]];then gunzip $file; f=${$file//'.gz'};fi
+	     f=${$f//'/container/logfiles/frontend-server/'}
+	     python3 log_to_dataframe.py -f $f
+	     python3 drain3_parser.py -f $f
+	     gzip $file
+	    else 
+	     python3 log_to_dataframe.py -f $3
+	     python3 drain3_parser.py -f $3
 	   else
 	    echo "$3 seems to be already parsed, if it's a new file to be parsed, please name it differently"
-	   fi
+	  fi	   
 	   if ! test -e "results/frontend-server/"$3"_normal"; then
 	    python3 drain_sequences.py -f $3
 	   else
-	    echo "$3 seems to be already parsed, if it's a new file to be parsed, please name it differently"
+	    echo "$3 has already been converted to sequences, if it's a new file to be converted, please name it differently"
 	   fi
  	  elif [[ $2 == backend ]]; then
 	   if ! test -e "results/backend-server/"$3"_struct.csv"; then
@@ -74,8 +82,10 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	 #Parsing part 
 	  if [[ $2 == frontend ]]; then
 	   for file in /container/logfiles/frontend-server/*
-	   do #clustering
-	    f=${file//"/container/logfiles/frontend-server/"}
+	   do                                                                         #Clustering
+	   was_gzipped=$false
+	   if [[ $file =~ \.gz$ ]];then gunzip $file;was_gzipped=$true;file=${file//'.gz'}fi
+	    f=${file//"/container/logfiles/frontend-server/"}    
 	    if ! test -e "results/frontend-server/"$f"_struct.csv" ;then
 	     echo "Processing $file ..."
 	     python3 log_to_dataframe.py -f $f
@@ -83,6 +93,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	    else
 	     echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
 	    fi
+	    if [ "$was_gzipped" = true ]; then gzip $file; was_gzipped=false; fi
 	   done
 	   for file in results/frontend-server/*_struct.csv
 	   do #extract sequences
@@ -98,6 +109,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	  elif [[ $2 == backend ]]; then
 	   for file in /container/logfiles/backend-server/*
 	   do #clustering
+	    if [[ $file =~ \.gz$ ]];then gunzip $file; was_gzipped=$true;file=${$file//'.gz'};fi
 	    f=${file//'/container/logfiles/backend-server/'}
 	    if ! test -e "results/backend-server/"$f"_struct.csv";then
 	     echo "Processing $file ..."
@@ -106,6 +118,7 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	    else 
 	     echo "$file seems to be already parsed, if it's a new file to be parsed, please name it differently"
 	    fi
+	   if [ "$was_gzipped" = true ]; then gzip $file; fi
 	   done
 	   for file in results/backend-server/*_struct.csv
 	   do #extract sequences
