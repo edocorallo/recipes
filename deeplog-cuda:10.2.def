@@ -137,16 +137,23 @@ From: nvidia/cuda:10.2-devel-ubuntu18.04
 	 then
 	  cd /container/DeepLog_no_tensorboard/
 	  echo "Training stage..."
-	####################################<---training dataset creation:WIP
+	 if [[$2 == frontend]]
 	#DeepLog training stage
-	  python3 LogKeyModel_train.py -log_file $2
-	 elif [[ $1 == predict ]]; 
-	 then
-	  cd /container/DeepLog_no_tensorboard/
-	  echo "Predicting..."				
-	#Deeplog prediction
-	  python3 LogKeyModel_predict.py -log_file $2
-	 else
+	  python3 LogKeyModel_train.py -f -log_file storm-frontend
+	  elif[[$2 == backend]]
+	  python3 LogKeyModel_train.py -b -log_file storm-backend
+	  fi
+	 elif [[ $1 == predict ]];
+	 cd /container/DeepLog_no_tensorboard/
+	  echo "Predicting..."	
+	 if [[$2 == frontend]]
+	 then			
+	  python3 LogKeyModel_predict.py -f -log_file storm-frontend
+	  fi
+	 elif [[$2 == backend]]
+	  python3 LogKeyModel_predict.py -b -log_file storm-backend
+	  fi
+	  else
 	  echo "Specify the task: parse, train, predict are the available options"
 	 fi
 	fi
